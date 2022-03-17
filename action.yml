@@ -1,0 +1,26 @@
+name: 'sshremote-action'
+description: 'help user sent ssh command to remote server node'
+author: 'wenchui'
+inputs:
+  ipaddr: 
+    required: true
+    description: 'the remote server node ip address'
+  username: 
+    required: true
+    description: 'the remote server node login username'
+    default: 'root'
+  password: 
+    required: true
+    description: 'the remote server node login password'
+    default: '1234567890'
+  commands: 
+    required: true
+    description: 'the remote commands'
+    default: |
+             "ls -la",
+             "ps -ef | grep java",
+             "whoami"
+
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
