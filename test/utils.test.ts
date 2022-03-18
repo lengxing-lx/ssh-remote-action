@@ -55,7 +55,7 @@ test('check inputs',() =>{
 test('check commands danger',() =>{
     let commands1: string[] = ['ps -ef | grep java','ls -la','/usr/local/tomcat/bin/stop.sh']
     let commands2: string[] = ['reboot -f']
-    expect(utils.checkCommandsDanger(commands1)).toEqual(true);
-    expect(utils.checkCommandsDanger(commands2)).toEqual(false);
+    expect(utils.checkCommandsDanger(commands1)).toEqual(false);
+    expect(utils.checkCommandsDanger(commands2)).toEqual(true);
 
 })
