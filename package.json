@@ -9,7 +9,8 @@
     "format": "prettier --write '**/*.ts'",
     "format-check": "prettier --check '**/*.ts'",
     "package": "ncc build --source-map",
-    "all": "npm run build && npm run format && npm run package"
+    "test": "jest",
+    "all": "npm run build && npm run format && npm run package && npm run test"
   },
   "repository": {
     "type": "git",

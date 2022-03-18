@@ -14,7 +14,7 @@ export async function run() {
   }
 
   //如果发现命令中有高危操作，停止操作
-  const commandsDanger = remotessh.checkCommandsDanger(inputs.commands)
+  const commandsDanger = utils.checkCommandsDanger(inputs.commands)
   if (commandsDanger) {
     core.info('dangerCommand found, terminate process')
     return
