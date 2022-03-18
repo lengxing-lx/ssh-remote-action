@@ -4,6 +4,7 @@ import * as context from './context'
 
 const dangerCommandSet: string[] = [
   'poweroff',
+  'reboot',
   'rm',
   'mkfs',
   'file',
@@ -15,7 +16,7 @@ export async function execRemoteSSHCommands(
   inputs: context.Inputs
 ): Promise<void> {
   for (var i = 0; i < inputs.commands.length; i++) {
-    core.info('exec current command ' + inputs.commands[i])
+    core.info('exec command:' + inputs.commands[i])
     let sshpassCommand =
       'sshpass -p ' +
       inputs.password +
@@ -31,9 +32,8 @@ export async function execRemoteSSHCommands(
 }
 
 export async function execRemoteSSHCommand(sshcommand: string): Promise<void> {
-  core.info('current full command ' + sshcommand)
   let sshpassCommandResult = await (cp.execSync(sshcommand) || '').toString()
-  core.info('sshpassCommandResult ' + sshpassCommandResult)
+  core.info('result ' + sshpassCommandResult)
 }
 
 export function checkCommandsDanger(commands: string[]): boolean {
@@ -54,13 +54,15 @@ export function checkCommandsDanger(commands: string[]): boolean {
  * @returns
  */
 export function checkCommandDanger(command: string): boolean {
-  core.info('current command ' + command)
   let isCommandDanger = false
   for (var i = 0; i < dangerCommandSet.length; i++) {
-    core.info('current check ' + dangerCommandSet[i])
     if (command.indexOf(dangerCommandSet[i]) > -1) {
       core.info(
-        'find danger command ' + dangerCommandSet[i] + ' in command ' + command
+        'find danger operation "' +
+          dangerCommandSet[i] +
+          '" in command line "' +
+          command +
+          '",please remove it '
       )
       isCommandDanger = true
     }

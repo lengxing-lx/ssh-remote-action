@@ -15,12 +15,3 @@ export function getInputs(): Inputs {
     commands: core.getMultilineInput('command')
   }
 }
-
-export function getInputsForTest(): Inputs {
-  return {
-    ipaddr: '***.***.***.***',
-    username: 'service',
-    password: '********',
-    commands: ['docker images', 'docker ps -a', 'docker info']
-  }
-}

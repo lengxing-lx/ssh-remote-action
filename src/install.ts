@@ -16,8 +16,7 @@ export async function installSshPassOnSystem(): Promise<boolean> {
   } else {
     core.info('start install sshpass')
     let platform = os.platform()
-    let arch = os.arch()
-    installSshPassByPlatformAndArch(platform, arch)
+    installSshPassByPlatformAndArch(platform)
     return checkSshpassInstall()
   }
 }
@@ -33,8 +32,8 @@ export async function checkSshpassInstall(): Promise<boolean> {
     return false
   } else {
     core.info('sshPass already installed and set to the path')
-    let goVersion = (cp.execSync(`${sshPass} -V`) || '').toString()
-    core.info(goVersion)
+    let sshPassVersion = (cp.execSync(`${sshPass} -V`) || '').toString()
+    core.info(sshPassVersion)
     return true
   }
 }
@@ -45,10 +44,8 @@ export async function checkSshpassInstall(): Promise<boolean> {
  * @param arch
  */
 export async function installSshPassByPlatformAndArch(
-  platform: string,
-  arch: string
+  platform: string
 ): Promise<void> {
-  core.info('platform ' + platform + ' arch ' + arch)
   if (platform === 'darwin') {
     await installSshPassOnMacos()
   }
