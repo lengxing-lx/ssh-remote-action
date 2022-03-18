@@ -1,4 +1,4 @@
-name: 'sshremote-action'
+name: 'ssh-remote-action'
 description: 'help user sent ssh command to remote server node'
 author: 'wenchui'
 inputs:

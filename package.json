@@ -8,10 +8,8 @@
     "build": "tsc",
     "format": "prettier --write '**/*.ts'",
     "format-check": "prettier --check '**/*.ts'",
-    "lint": "eslint src/**/*.ts",
-    "package": "ncc build --source-map --license licenses.txt",
-    "test": "jest",
-    "all": "npm run build && npm run format && npm run lint && npm run package && npm test"
+    "package": "ncc build --source-map",
+    "all": "npm run build && npm run format && npm run package"
   },
   "repository": {
     "type": "git",
@@ -32,7 +30,6 @@
     "semver": "^6.1.1"
   },
   "devDependencies": {
-    "@types/jest": "^27.0.2",
     "@types/node": "^16.11.25",
     "@types/semver": "^6.0.0",
     "@zeit/ncc": "^0.21.0",
