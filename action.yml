@@ -1,5 +1,8 @@
 name: 'ssh-remote-action'
 description: 'help user sent ssh command to remote server node'
+branding:
+  color: 'red'
+  icon: 'chevron-up'
 author: 'wenchui'
 inputs:
   ipaddr: 
