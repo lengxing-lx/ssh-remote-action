@@ -11,7 +11,7 @@ inputs:
   username: 
     required: true
     description: 'the remote server node login username'
-    default: 'root'
+    default: 'service'
   password: 
     required: true
     description: 'the remote server node login password'
@@ -20,9 +20,9 @@ inputs:
     required: true
     description: 'the remote commands'
     default: |
-             "ls -la",
-             "ps -ef | grep java",
-             "whoami"
+             ls -la
+             ps -ef | grep java
+             whoami
 
 runs:
   using: 'node16'

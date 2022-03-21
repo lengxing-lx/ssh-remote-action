@@ -12,6 +12,6 @@ export function getInputs(): Inputs {
     ipaddr: core.getInput('ipaddr'),
     username: core.getInput('username'),
     password: core.getInput('password'),
-    commands: core.getMultilineInput('command')
+    commands: core.getMultilineInput('commands')
   }
 }
