@@ -15,10 +15,10 @@ export async function installSshPassOnSystem(): Promise<boolean> {
     return isInstalld
   }
 
-    core.info('start install sshpass')
-    let platform = os.platform()
-    installSshPassByPlatform(platform)
-    return checkSshpassInstall()
+  core.info('start install sshpass')
+  let platform = os.platform()
+  installSshPassByPlatform(platform)
+  return checkSshpassInstall()
 }
 
 /**
@@ -41,7 +41,9 @@ export async function checkSshpassInstall(): Promise<boolean> {
  * 针对不同操作系统完成sshpass安装，可以细分为macos,linux-centos,linux-ubunto,windows等
  * @param platform
  */
-export async function installSshPassByPlatform(platform: string): Promise<void> {
+export async function installSshPassByPlatform(
+  platform: string
+): Promise<void> {
   if (platform === 'darwin') {
     await installSshPassOnMacos()
   }
@@ -52,7 +54,7 @@ export async function installSshPassByPlatform(platform: string): Promise<void> 
 
 /**
  * mac系统安装sshpass
- * 有可能先要完成xcode-select 的安装，可以执行 xcode-select --install 
+ * 有可能先要完成xcode-select 的安装，可以执行 xcode-select --install
  */
 export async function installSshPassOnMacos(): Promise<void> {
   core.info('current system is Ubuntu,use apt-get to install sshpass')
@@ -70,11 +72,11 @@ export async function installSshPassOnMacos(): Promise<void> {
  */
 export async function installSshPassOnLinux(): Promise<void> {
   const osRelease = await (cp.execSync(`cat /etc/os-release`) || '').toString()
-  let installCommand: string = "yum -y install -q sshpass";
+  let installCommand: string = 'yum -y install -q sshpass'
 
   if (osRelease.indexOf('Ubuntu') > -1 || osRelease.indexOf('Debain')) {
     core.info('current system is Ubuntu,use apt-get to install sshpass')
-    installCommand = `apt-get -y -q update && apt-get -y install -q sshpass`;
+    installCommand = `apt-get -y -q update && apt-get -y install -q sshpass`
   }
 
   if (osRelease.indexOf('CentOS') > -1) {
@@ -82,26 +84,24 @@ export async function installSshPassOnLinux(): Promise<void> {
     installCommand = `yum -y install -q sshpass`
   }
 
-  if(osRelease.indexOf('Fedora') > -1){
+  if (osRelease.indexOf('Fedora') > -1) {
     core.info('current system is Fedor,use Dnf to install sshpass')
     installCommand = `dnf install -y sshpass`
   }
 
-  if(osRelease.indexOf('SUSE') > -1){
+  if (osRelease.indexOf('SUSE') > -1) {
     core.info('current system is OpenSuSE,use Zypper to install sshpass')
     installCommand = `zypper in docker`
   }
-  await installSshPassByCommand(installCommand);
+  await installSshPassByCommand(installCommand)
 }
 
 /**
  * 根据传入的命令完成sshpass的安装
- * @param command 
+ * @param command
  */
-export async function installSshPassByCommand(command:string): Promise<void> {
+export async function installSshPassByCommand(command: string): Promise<void> {
   core.info('current system is Ubuntu,use apt-get to install sshpass')
-  const installSshPassResult = await (
-    cp.execSync(command) || ''
-  ).toString()
+  const installSshPassResult = await (cp.execSync(command) || '').toString()
   core.info(installSshPassResult)
 }

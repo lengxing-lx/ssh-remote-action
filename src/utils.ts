@@ -3,16 +3,16 @@ import * as context from './context'
 
 //高危命令列表，持续完善
 const dangerCommandSet: string[] = [
-    'poweroff',
-    'reboot',
-    'rm',
-    'mkfs',
-    'file',
-    'dd',
-    'shutdown',
-    '){:|:&};:',
-    '^foo^bar'
-  ]
+  'poweroff',
+  'reboot',
+  'rm',
+  'mkfs',
+  'file',
+  'dd',
+  'shutdown',
+  '){:|:&};:',
+  '^foo^bar'
+]
 /**
  * 检查输入的各参数是否正常
  * @param inputs
@@ -63,41 +63,41 @@ export function checkObejectIsNull(s: string): boolean {
 }
 
 /**
- * 
+ *
  * @param commands 检查是否有影响操作系统安全的高危命令
- * @returns 
+ * @returns
  */
- export function checkCommandsDanger(commands: string[]): boolean {
-    var isCommandsDanger: boolean = false
-    for (var i = 0; i < commands.length; i++) {
-      var command = commands[i]
-      if (checkCommandDanger(command)) {
-        isCommandsDanger = true
-        break
-      }
+export function checkCommandsDanger(commands: string[]): boolean {
+  var isCommandsDanger: boolean = false
+  for (var i = 0; i < commands.length; i++) {
+    var command = commands[i]
+    if (checkCommandDanger(command)) {
+      isCommandsDanger = true
+      break
     }
-    return isCommandsDanger
   }
-  
-  /**
-   * 检查命令行中是否有黑名单中的高危命令
-   * @param command
-   * @returns
-   */
-  export function checkCommandDanger(command: string): boolean {
-    let isCommandDanger = false
-    for (var i = 0; i < dangerCommandSet.length; i++) {
-      if (command.indexOf(dangerCommandSet[i]) > -1) {
-        core.info(
-          'find danger operation "' +
-            dangerCommandSet[i] +
-            '" in command line "' +
-            command +
-            '",please remove it '
-        )
-        isCommandDanger = true
-      }
+  return isCommandsDanger
+}
+
+/**
+ * 检查命令行中是否有黑名单中的高危命令
+ * @param command
+ * @returns
+ */
+export function checkCommandDanger(command: string): boolean {
+  let isCommandDanger = false
+  for (var i = 0; i < dangerCommandSet.length; i++) {
+    if (command.indexOf(dangerCommandSet[i]) > -1) {
+      core.info(
+        'find danger operation "' +
+          dangerCommandSet[i] +
+          '" in command line "' +
+          command +
+          '",please remove it '
+      )
+      isCommandDanger = true
     }
-    i
-    return isCommandDanger
   }
+  i
+  return isCommandDanger
+}

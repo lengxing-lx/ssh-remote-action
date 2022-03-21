@@ -22,11 +22,10 @@ export async function execRemoteSSHCommands(
 }
 
 /**
- * 
+ *
  * @param sshcommand 执行远程命令
  */
 export async function execRemoteSSHCommand(sshcommand: string): Promise<void> {
   let sshpassCommandResult = await (cp.execSync(sshcommand) || '').toString()
   core.info('result ' + sshpassCommandResult)
 }
-
