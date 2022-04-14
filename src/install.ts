@@ -9,14 +9,14 @@ import * as os from 'os'
  */
 export async function installSshPassOnSystem(): Promise<boolean> {
   const isInstalld = await checkSshpassInstall()
-  core.info(`is install ${isInstalld}`)
+  core.info('is install' + isInstalld)
   if (isInstalld) {
     core.info('sshPass already installed and set to the path')
     return isInstalld
   }
 
   core.info('start install sshpass')
-  let platform = os.platform()
+  const platform = os.platform()
   installSshPassByPlatform(platform)
   return checkSshpassInstall()
 }
@@ -26,13 +26,13 @@ export async function installSshPassOnSystem(): Promise<boolean> {
  * @returns
  */
 export async function checkSshpassInstall(): Promise<boolean> {
-  let sshPass = await io.which('sshpass')
+  const sshPass = await io.which('sshpass')
   if (!sshPass) {
     core.info('sshPass not installed or not set to the path')
     return false
   }
   core.info('sshPass already installed and set to the path')
-  let sshPassVersion = (cp.execSync(`${sshPass} -V`) || '').toString()
+  const sshPassVersion = (cp.execSync(`${sshPass} -V`) || '').toString()
   core.info(sshPassVersion)
   return true
 }
@@ -57,7 +57,7 @@ export async function installSshPassByPlatform(
  * 有可能先要完成xcode-select 的安装，可以执行 xcode-select --install
  */
 export async function installSshPassOnMacos(): Promise<void> {
-  core.info('current system is Ubuntu,use apt-get to install sshpass')
+  core.info('current system is MacOS,use brew to install sshpass')
   await (
     cp.execSync(
       `wget https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Library/Formula/sshpass.rb && brew install sshpass.rb`
@@ -72,7 +72,7 @@ export async function installSshPassOnMacos(): Promise<void> {
  */
 export async function installSshPassOnLinux(): Promise<void> {
   const osRelease = await (cp.execSync(`cat /etc/os-release`) || '').toString()
-  let installCommand: string = 'yum -y install -q sshpass'
+  let installCommand = 'yum -y install -q sshpass'
 
   if (osRelease.indexOf('Ubuntu') > -1 || osRelease.indexOf('Debain')) {
     core.info('current system is Ubuntu,use apt-get to install sshpass')
@@ -91,7 +91,7 @@ export async function installSshPassOnLinux(): Promise<void> {
 
   if (osRelease.indexOf('SUSE') > -1) {
     core.info('current system is OpenSuSE,use Zypper to install sshpass')
-    installCommand = `zypper in docker`
+    installCommand = `zypper in sshpass`
   }
   await installSshPassByCommand(installCommand)
 }

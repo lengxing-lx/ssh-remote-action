@@ -823,7 +823,6 @@ const utils = __importStar(__webpack_require__(611));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         const inputs = context.getInputs();
-        //const inputs:context.Inputs = context.getInputsForTest();
         //如果参数输入有问题，终止操作
         if (!utils.checkInputs(inputs)) {
             return;
@@ -835,13 +834,13 @@ function run() {
             return;
         }
         //检查当前环境是否具备远程命令操作条件
-        const installSuccess = install.installSshPassOnSystem();
+        const installSuccess = yield install.installSshPassOnSystem();
         if (!installSuccess) {
             core.info('can not install sshpass on system');
             return;
         }
         //执行远程操作
-        remotessh.execRemoteSSHCommands(inputs);
+        yield remotessh.execRemoteSSHCommands(inputs);
     });
 }
 exports.run = run;
@@ -962,9 +961,10 @@ const core = __importStar(__webpack_require__(470));
 const cp = __importStar(__webpack_require__(129));
 function execRemoteSSHCommands(inputs) {
     return __awaiter(this, void 0, void 0, function* () {
-        for (var i = 0; i < inputs.commands.length; i++) {
+        //  for (const command in inputs.commands) {
+        for (let i = 0; i < inputs.commands.length; i++) {
             core.info('exec command:' + inputs.commands[i]);
-            let sshpassCommand = 'sshpass -p ' +
+            const sshpassCommand = 'sshpass -p ' +
                 inputs.password +
                 ' ssh -o StrictHostKeyChecking=no ' +
                 inputs.username +
@@ -984,7 +984,7 @@ exports.execRemoteSSHCommands = execRemoteSSHCommands;
  */
 function execRemoteSSHCommand(sshcommand) {
     return __awaiter(this, void 0, void 0, function* () {
-        let sshpassCommandResult = yield (cp.execSync(sshcommand) || '').toString();
+        const sshpassCommandResult = yield (cp.execSync(sshcommand) || '').toString();
         core.info('result ' + sshpassCommandResult);
     });
 }
@@ -1451,14 +1451,28 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getInputs = void 0;
+exports.getInputs = exports.dangerCommandSet = exports.IPREGX = void 0;
 const core = __importStar(__webpack_require__(470));
+//检测IP正则表达式
+exports.IPREGX = /^((\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))(\.|$)){4}$/;
+//高危命令列表，持续完善
+exports.dangerCommandSet = [
+    'poweroff',
+    'reboot',
+    'rm',
+    'mkfs',
+    'file',
+    'dd',
+    'shutdown',
+    '){:|:&};:',
+    '^foo^bar'
+];
 function getInputs() {
     return {
-        ipaddr: core.getInput('ipaddr'),
-        username: core.getInput('username'),
-        password: core.getInput('password'),
-        commands: core.getMultilineInput('commands')
+        ipaddr: core.getInput('ipaddr', { required: true }),
+        username: core.getInput('username', { required: true }),
+        password: core.getInput('password', { required: true }),
+        commands: core.getMultilineInput('commands', { required: true })
     };
 }
 exports.getInputs = getInputs;
@@ -2043,29 +2057,18 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkCommandDanger = exports.checkCommandsDanger = exports.checkObejectIsNull = exports.checkIPV4Addr = exports.checkInputs = void 0;
+exports.checkCommandDanger = exports.checkCommandsDanger = exports.checkParameterIsNull = exports.checkIPV4Addr = exports.checkInputs = void 0;
 const core = __importStar(__webpack_require__(470));
-//高危命令列表，持续完善
-const dangerCommandSet = [
-    'poweroff',
-    'reboot',
-    'rm',
-    'mkfs',
-    'file',
-    'dd',
-    'shutdown',
-    '){:|:&};:',
-    '^foo^bar'
-];
+const context = __importStar(__webpack_require__(482));
 /**
  * 检查输入的各参数是否正常
  * @param inputs
  * @returns
  */
 function checkInputs(inputs) {
-    if (checkObejectIsNull(inputs.ipaddr) ||
-        checkObejectIsNull(inputs.username) ||
-        checkObejectIsNull(inputs.password)) {
+    if (checkParameterIsNull(inputs.ipaddr) ||
+        checkParameterIsNull(inputs.username) ||
+        checkParameterIsNull(inputs.password)) {
         core.info('Please fill all the required parameters');
         return false;
     }
@@ -2086,36 +2089,40 @@ exports.checkInputs = checkInputs;
  * @returns
  */
 function checkIPV4Addr(ipaddr) {
-    let ipRegx = /^((\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))(\.|$)){4}$/;
-    return ipRegx.test(ipaddr) ? true : false;
+    return context.IPREGX.test(ipaddr);
 }
 exports.checkIPV4Addr = checkIPV4Addr;
 /**
  * 判断字符串是否为空
- * @param s
+ * @param parameter
  * @returns
  */
-function checkObejectIsNull(s) {
-    if (s == undefined || s == null || s == '' || s.trim().length == 0) {
-        return true;
-    }
-    return false;
+function checkParameterIsNull(parameter) {
+    return (parameter === undefined ||
+        parameter === null ||
+        parameter === '' ||
+        parameter.trim().length == 0);
 }
-exports.checkObejectIsNull = checkObejectIsNull;
+exports.checkParameterIsNull = checkParameterIsNull;
 /**
  *
  * @param commands 检查是否有影响操作系统安全的高危命令
  * @returns
  */
 function checkCommandsDanger(commands) {
-    var isCommandsDanger = false;
-    for (var i = 0; i < commands.length; i++) {
-        var command = commands[i];
-        if (checkCommandDanger(command)) {
+    let isCommandsDanger = false;
+    for (let i = 0; i < commands.length; i++) {
+        if (checkCommandDanger(commands[i])) {
             isCommandsDanger = true;
             break;
         }
     }
+    // for (const command in commands) {
+    //   if (checkCommandDanger(command)) {
+    //     isCommandsDanger = true
+    //     break
+    //   }
+    // }
     return isCommandsDanger;
 }
 exports.checkCommandsDanger = checkCommandsDanger;
@@ -2126,17 +2133,16 @@ exports.checkCommandsDanger = checkCommandsDanger;
  */
 function checkCommandDanger(command) {
     let isCommandDanger = false;
-    for (var i = 0; i < dangerCommandSet.length; i++) {
-        if (command.indexOf(dangerCommandSet[i]) > -1) {
+    for (const danCommand in context.dangerCommandSet) {
+        if (command.includes(danCommand)) {
             core.info('find danger operation "' +
-                dangerCommandSet[i] +
+                danCommand +
                 '" in command line "' +
                 command +
                 '",please remove it ');
             isCommandDanger = true;
         }
     }
-    i;
     return isCommandDanger;
 }
 exports.checkCommandDanger = checkCommandDanger;
@@ -2211,13 +2217,13 @@ const os = __importStar(__webpack_require__(87));
 function installSshPassOnSystem() {
     return __awaiter(this, void 0, void 0, function* () {
         const isInstalld = yield checkSshpassInstall();
-        core.info(`is install ${isInstalld}`);
+        core.info('is install' + isInstalld);
         if (isInstalld) {
             core.info('sshPass already installed and set to the path');
             return isInstalld;
         }
         core.info('start install sshpass');
-        let platform = os.platform();
+        const platform = os.platform();
         installSshPassByPlatform(platform);
         return checkSshpassInstall();
     });
@@ -2229,13 +2235,13 @@ exports.installSshPassOnSystem = installSshPassOnSystem;
  */
 function checkSshpassInstall() {
     return __awaiter(this, void 0, void 0, function* () {
-        let sshPass = yield io.which('sshpass');
+        const sshPass = yield io.which('sshpass');
         if (!sshPass) {
             core.info('sshPass not installed or not set to the path');
             return false;
         }
         core.info('sshPass already installed and set to the path');
-        let sshPassVersion = (cp.execSync(`${sshPass} -V`) || '').toString();
+        const sshPassVersion = (cp.execSync(`${sshPass} -V`) || '').toString();
         core.info(sshPassVersion);
         return true;
     });
@@ -2262,7 +2268,7 @@ exports.installSshPassByPlatform = installSshPassByPlatform;
  */
 function installSshPassOnMacos() {
     return __awaiter(this, void 0, void 0, function* () {
-        core.info('current system is Ubuntu,use apt-get to install sshpass');
+        core.info('current system is MacOS,use brew to install sshpass');
         yield (cp.execSync(`wget https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Library/Formula/sshpass.rb && brew install sshpass.rb`) || '').toString();
     });
 }
@@ -2275,7 +2281,7 @@ exports.installSshPassOnMacos = installSshPassOnMacos;
 function installSshPassOnLinux() {
     return __awaiter(this, void 0, void 0, function* () {
         const osRelease = yield (cp.execSync(`cat /etc/os-release`) || '').toString();
-        let installCommand = "yum -y install -q sshpass";
+        let installCommand = 'yum -y install -q sshpass';
         if (osRelease.indexOf('Ubuntu') > -1 || osRelease.indexOf('Debain')) {
             core.info('current system is Ubuntu,use apt-get to install sshpass');
             installCommand = `apt-get -y -q update && apt-get -y install -q sshpass`;
@@ -2290,7 +2296,7 @@ function installSshPassOnLinux() {
         }
         if (osRelease.indexOf('SUSE') > -1) {
             core.info('current system is OpenSuSE,use Zypper to install sshpass');
-            installCommand = `zypper in docker`;
+            installCommand = `zypper in sshpass`;
         }
         yield installSshPassByCommand(installCommand);
     });

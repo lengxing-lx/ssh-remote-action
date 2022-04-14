@@ -1,0 +1,29 @@
+on: 
+  pull_request:
+  push:
+    branches:
+      - main
+      - 'releases/*'
+
+jobs:
+  build: 
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          npm install
+      - run: |
+          npm run all
+  test: 
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./
+        with:
+         ipaddr: 182.92.156.203
+         username: root
+         password: Admin123!
+         commands: |
+             ls -la
+             ps -ef | grep java
+             whoami

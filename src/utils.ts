@@ -1,18 +1,6 @@
 import * as core from '@actions/core'
 import * as context from './context'
 
-//高危命令列表，持续完善
-const dangerCommandSet: string[] = [
-  'poweroff',
-  'reboot',
-  'rm',
-  'mkfs',
-  'file',
-  'dd',
-  'shutdown',
-  '){:|:&};:',
-  '^foo^bar'
-]
 /**
  * 检查输入的各参数是否正常
  * @param inputs
@@ -20,9 +8,9 @@ const dangerCommandSet: string[] = [
  */
 export function checkInputs(inputs: context.Inputs): boolean {
   if (
-    checkObejectIsNull(inputs.ipaddr) ||
-    checkObejectIsNull(inputs.username) ||
-    checkObejectIsNull(inputs.password)
+    checkParameterIsNull(inputs.ipaddr) ||
+    checkParameterIsNull(inputs.username) ||
+    checkParameterIsNull(inputs.password)
   ) {
     core.info('Please fill all the required parameters')
     return false
@@ -46,20 +34,21 @@ export function checkInputs(inputs: context.Inputs): boolean {
  * @returns
  */
 export function checkIPV4Addr(ipaddr: string): boolean {
-  let ipRegx = /^((\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))(\.|$)){4}$/
-  return ipRegx.test(ipaddr) ? true : false
+  return context.IPREGX.test(ipaddr)
 }
 
 /**
  * 判断字符串是否为空
- * @param s
+ * @param parameter
  * @returns
  */
-export function checkObejectIsNull(s: string): boolean {
-  if (s == undefined || s == null || s == '' || s.trim().length == 0) {
-    return true
-  }
-  return false
+export function checkParameterIsNull(parameter: string): boolean {
+  return (
+    parameter === undefined ||
+    parameter === null ||
+    parameter === '' ||
+    parameter.trim().length == 0
+  )
 }
 
 /**
@@ -68,14 +57,19 @@ export function checkObejectIsNull(s: string): boolean {
  * @returns
  */
 export function checkCommandsDanger(commands: string[]): boolean {
-  var isCommandsDanger: boolean = false
-  for (var i = 0; i < commands.length; i++) {
-    var command = commands[i]
-    if (checkCommandDanger(command)) {
+  let isCommandsDanger = false
+  for (let i = 0; i < commands.length; i++) {
+    if (checkCommandDanger(commands[i])) {
       isCommandsDanger = true
       break
     }
   }
+  // for (const command in commands) {
+  //   if (checkCommandDanger(command)) {
+  //     isCommandsDanger = true
+  //     break
+  //   }
+  // }
   return isCommandsDanger
 }
 
@@ -86,11 +80,11 @@ export function checkCommandsDanger(commands: string[]): boolean {
  */
 export function checkCommandDanger(command: string): boolean {
   let isCommandDanger = false
-  for (var i = 0; i < dangerCommandSet.length; i++) {
-    if (command.indexOf(dangerCommandSet[i]) > -1) {
+  for (const danCommand in context.dangerCommandSet) {
+    if (command.includes(danCommand)) {
       core.info(
         'find danger operation "' +
-          dangerCommandSet[i] +
+          danCommand +
           '" in command line "' +
           command +
           '",please remove it '
@@ -98,6 +92,5 @@ export function checkCommandDanger(command: string): boolean {
       isCommandDanger = true
     }
   }
-  i
   return isCommandDanger
 }
